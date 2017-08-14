@@ -7,27 +7,49 @@ cache:
     - node_modules/
 
 stages:
-  - test_win10
+  - init_env
+  - browser_tests
+  - node_tests
+  - node_production_tests
+  - cleanup_env
 
 before_script:
   - "mkdir -p ../.vagrant-$CI_BUILD_REF_NAME"
   - rm -fr .vagrant
   - "ln -s ../.vagrant-$CI_BUILD_REF_NAME .vagrant"
 
-after_script:
+init_env:
+  stage: init_env
+  script:
+# Show some info about the testing environment
+    - npm -v
+    - node -v
+    - vagrant version
+    - VBoxManage -v
+# Spin up the VM
+    - vagrant up
+# Since the node_modules directory might not be synchronized between VM and host (GPII-2060)
+# it's necessary to run `npm install` on the host to get auxiliary tools installed (e.g grunt)
+    - npm install
+
+browser_tests_job:
+  stage: browser_tests
+  script:
+    - "npm run test:vagrantBrowser" 
+
+node_tests_job:
+  stage: node_tests
+  script:
+    - "npm run test:vagrantNode"
+
+node_production_tests_job:
+  stage: node_production_tests
+  script:
+    - "npm run test:vagrantProduction"
+
+cleanup:
+  stage: cleanup_env
+  script:
   - vagrant destroy -f
   - "rm -fr ../.vagrant-$CI_BUILD_REF_NAME"
-
-test_win10_x86_job:
-  stage: test_win10
-  script:
-    - vagrant up windows10-x86
-    - vagrant ci test windows10-x86
-  when: always
-
-test_win10_x64_job:
-  stage: test_win10
-  script:
-    - vagrant up windows10-x64
-    - vagrant ci test windows10-x64
   when: always
