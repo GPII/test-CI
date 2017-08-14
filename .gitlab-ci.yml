@@ -18,7 +18,7 @@ before_script:
   - rm -fr .vagrant
   - "ln -s ../.vagrant-$CI_BUILD_REF_NAME .vagrant"
 
-init_env:
+init_environment:
   stage: init_env
   script:
 # Show some info about the testing environment
@@ -36,18 +36,21 @@ browser_tests_job:
   stage: browser_tests
   script:
     - "npm run test:vagrantBrowser" 
+  when: always
 
 node_tests_job:
   stage: node_tests
   script:
     - "npm run test:vagrantNode"
+  when: always
 
 node_production_tests_job:
   stage: node_production_tests
   script:
     - "npm run test:vagrantProduction"
+  when: always
 
-cleanup:
+cleanup_environment:
   stage: cleanup_env
   script:
   - vagrant destroy -f
