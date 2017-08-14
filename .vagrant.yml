@@ -28,4 +28,5 @@ test_job:
   stage: test          # name of the stage
   script:              # One line per command to execute
     - do.ps1 -c 'dir c:\'
+    - do.ps1 -c 'dir c:\'
 
